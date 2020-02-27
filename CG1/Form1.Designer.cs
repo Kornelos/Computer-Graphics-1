@@ -97,7 +97,8 @@
             this.filterCheckedListBox.Items.AddRange(new object[] {
             "Inversion",
             "Brightness correction",
-            "Gamma correction"});
+            "Gamma correction",
+            "Contrast enhancement"});
             this.filterCheckedListBox.Location = new System.Drawing.Point(6, 596);
             this.filterCheckedListBox.Name = "filterCheckedListBox";
             this.filterCheckedListBox.Size = new System.Drawing.Size(415, 188);

@@ -27,7 +27,7 @@ namespace CG1
             string filename;
 
             openFileDialog1.ShowDialog();
-            openFileDialog1.Filter = "&quot; JPEG files| *.jpg | PNG files | *.png | GIF Files | *.gif | TIFF Files | *.tif | BMP Files | *.bmp & quot" ;
+            openFileDialog1.Filter = "JPEG files| *.jpg | PNG files | *.png | GIF Files | *.gif | TIFF Files | *.tif | BMP Files | *.bmp" ;
 
             filename = openFileDialog1.FileName;
 
