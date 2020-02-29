@@ -15,6 +15,7 @@ namespace CG1
     {
 
         Image img;
+        Image originalImg;
         Filters filters = new Filters();
         
         public Form1()
@@ -27,12 +28,14 @@ namespace CG1
             string filename;
 
             openFileDialog1.ShowDialog();
-            openFileDialog1.Filter = "JPEG files| *.jpg | PNG files | *.png | GIF Files | *.gif | TIFF Files | *.tif | BMP Files | *.bmp" ;
+            openFileDialog1.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png *.bmp";
 
             filename = openFileDialog1.FileName;
 
             img = Image.FromFile(filename);
+            originalImg = img;
             pictureBox1.Image = img;
+            pictureBox2.Image = originalImg;
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -57,6 +60,12 @@ namespace CG1
                pictureBox1.Image = img;
             }  
             
+        }
+
+        private void revertButton_Click(object sender, EventArgs e)
+        {
+            img = originalImg;
+            pictureBox1.Image = img;
         }
     }
 }

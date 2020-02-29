@@ -21,9 +21,11 @@ namespace CG1
         //brightnessValue - from -1 to 1
         private double brightnessValue = 0.8;
         //Threshold values range from 100 to –100 inclusive
-        private int contrastThreshold = -30;
+        private int contrastThreshold = 30;
         //gamma value
         private Gamma gamma = new Gamma(2,1,0.5);
+
+        private Convolution convolution = new Convolution();
         
         public Filters()
         {
@@ -40,6 +42,16 @@ namespace CG1
                 return GammaCorrection(img);
             if (filter == "Contrast enhancement")
                 return ContrastEnhancement(img);
+            if (filter == "Gaussian blur")
+                return GaussianBlur(img);
+            if (filter == "Box blur")
+                return BoxBlur(img);
+            if (filter == "Sharpen")
+                return Sharpen(img);
+            if (filter == "Edge detection")
+                return EdgeDetection(img);
+            if (filter == "Emboss")
+                return Emboss(img);
             else
             {
                 MessageBox.Show("Filter not implemented");
@@ -138,7 +150,7 @@ namespace CG1
         {
             int red, green, blue;
             Bitmap bmp = new Bitmap(image);
-            double calculatedTreshold = Math.Pow((100.0 + contrastThreshold) / 100.0, 2);
+
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
@@ -155,6 +167,58 @@ namespace CG1
             }
             return bmp;
         }
+
+        /*Convolutional filters*/
+        private Image GaussianBlur(Image image)
+        {
+
+            double[,] kernel = new double[3, 3] { { 1/16f, 1/8f, 1/16f },
+                                                  { 1/8f, 1/4f, 1/8f   },
+                                                  { 1/16f, 1/8f, 1/16f } };
+
+            return convolution.applyKernel(image, kernel);
+        }
+
+        private Image BoxBlur(Image image)
+        {
+
+            double[,] kernel = new double[3, 3] { { 1/9f, 1/9f, 1/9f },
+                                                  { 1/9f, 1/9f, 1/9f },
+                                                  { 1/9f, 1/9f, 1/9f } };
+
+            return convolution.applyKernel(image, kernel);
+        }
+
+        private Image Sharpen(Image image)
+        {
+
+            double[,] kernel = new double[3, 3] { { 0, -1, 0  },
+                                                  { -1, 5, -1 },
+                                                  { 0, -1, 0  } };
+
+            return convolution.applyKernel(image, kernel);
+        }
+
+        private Image EdgeDetection(Image image)
+        {
+            // horizontal 
+            double[,] kernel = new double[3, 3] { { 0, -1, 0 },
+                                                  { 0, 1, 0  },
+                                                  { 0, 0, 0  } };
+
+            return convolution.applyKernel(image, kernel);
+        }
+        private Image Emboss(Image image)
+        {
+            // south emboss
+            double[,] kernel = new double[3, 3] { { -1, -1, -1 },
+                                                  { 0, 1, 0  },
+                                                  { 1, 1, 1  } };
+
+            return convolution.applyKernel(image, kernel);
+        }
+
+
 
     }
 }
