@@ -1,39 +1,64 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace CG1
 {
     public class Filters
     {
-        private struct Gamma
-        {
-            public double r, g, b;
-            public Gamma(double r, double g, double b)
-            {
-                this.r = r;
-                this.b = b;
-                this.g = g;
-            }
-        }
-
         //brightnessValue - from -1 to 1
         private double brightnessValue = 0.8;
         //Threshold values range from 100 to –100 inclusive
         private int contrastThreshold = 30;
         //gamma value
-        private Gamma gamma = new Gamma(2,1,0.5);
+        private double gamma = 0.8;
 
         private Convolution convolution = new Convolution();
-        
-        public Filters()
-        {
 
+        // create basic filters
+        private List<ConvFilter> convFilters = new List<ConvFilter>
+        {
+            new ConvFilter("Box blur",new double[3,3]{ { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f } },3,3),
+            new ConvFilter("Gaussian blur",new double[3,3]{ { 1/16f, 1/8f, 1/16f },{ 1/8f, 1/4f, 1/8f   }, { 1/16f, 1/8f, 1/16f } },3,3),
+            new ConvFilter("Sharpen",new double[3,3]{ { 0, -1, 0  },{ -1, 5, -1 },{ 0, -1, 0  } },3,3),
+            new ConvFilter("Edge detection",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },3,3),
+            new ConvFilter("Emboss",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },3,3),
+            
+        };
+
+        public Filters() { }
+
+        public void addEditFilter(ConvFilter newConvFilter)
+        {
+            ConvFilter existingFilter = convFilters.FindLast(item => item.ToString() == newConvFilter.ToString());
+            if (existingFilter != null)
+                convFilters.Remove(existingFilter);
+             
+             convFilters.Add(newConvFilter);
+            
         }
+
+        public string[] getFilterNames()
+        {
+            List<string> filters = new List<string>
+            {
+                "Inversion","Brightness correction","Gamma correction","Contrast enhancement"
+            };
+            foreach(var filter in convFilters)
+            {
+                filters.Add(filter.ToString());
+            }
+
+            return filters.ToArray();
+        }
+        
 
         public Image ApplyFilterNamed(string filter, Image img)
         {
+            // functional filters
             if (filter == "Inversion")
                 return InversionFilter(img);
             if (filter == "Brightness correction")
@@ -42,18 +67,14 @@ namespace CG1
                 return GammaCorrection(img);
             if (filter == "Contrast enhancement")
                 return ContrastEnhancement(img);
-            if (filter == "Gaussian blur")
-                return GaussianBlur(img);
-            if (filter == "Box blur")
-                return BoxBlur(img);
-            if (filter == "Sharpen")
-                return Sharpen(img);
-            if (filter == "Edge detection")
-                return EdgeDetection(img);
-            if (filter == "Emboss")
-                return Emboss(img);
             else
             {
+                //convolutional filters
+                ConvFilter convFilter = convFilters.FindLast(item => item.ToString() == filter);
+                if(convFilter != null)
+                {
+                    return convolution.applyKernel(img, convFilter.Kernel);
+                }
                 MessageBox.Show("Filter not implemented");
                 return null;
             }
@@ -62,163 +83,183 @@ namespace CG1
         private Image InversionFilter(Image image)
         {
             Bitmap bmp = new Bitmap(image);
-
+            int width = bmp.Width;
+            int height = bmp.Height;
+            //makes copy of bitmap to memory for fast processing.
+            BitmapData srcData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            bmp.UnlockBits(srcData);
+            int current = 0;
+            int cChannels = 3;
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
                 {
-                    Color inv = bmp.GetPixel(x, y);
-                    inv = Color.FromArgb(255, (255 - inv.R), (255 - inv.G), (255 - inv.B));
-                    bmp.SetPixel(x, y, inv);
+                    current = y * srcData.Stride + x * 4;
+                    for (int i = 0; i < cChannels; i++)
+                    {
+                        //processing of single color channel
+                        double inv = (double)buffer[current + i];
+                        result[current + i] = (byte)((255 - inv));
+                    }
+                    //set alphas channel to 255
+                    result[current + 3] = 255;
                 }
             }
-            return bmp;
+            //puts bytes into result Bitmap
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(result, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
         }
 
         private Image BrightnessCorrection(Image image)
         {
             Bitmap bmp = new Bitmap(image);
-            int red, green, blue;
-
+            int width = bmp.Width;
+            int height = bmp.Height;
+            //makes copy of bitmap to memory for fast processing.
+            BitmapData srcData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            bmp.UnlockBits(srcData);
+            int current = 0;
+            int cChannels = 3;
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
                 {
-                    Color color = bmp.GetPixel(x, y);
-
-                    if (brightnessValue >= 0)
+                    current = y * srcData.Stride + x * 4;
+                    for (int i = 0; i < cChannels; i++)
                     {
-                         red = (int)((255 - color.R) * brightnessValue + color.R);
-                         green = (int)((255 - color.G) * brightnessValue + color.G);
-                         blue = (int)((255 - color.B) * brightnessValue + color.B);
+                        //processing of single color channel
+                        double channel = (double)buffer[current + i];
+                        if (brightnessValue >= 0)  
+                            result[current + i] = (byte)((255 - channel) * brightnessValue + channel);
+                        else
+                        {
+                            brightnessValue = 1 + brightnessValue;
+                            result[current + i] = (byte)(brightnessValue * channel);
+                        }
+                            
                     }
-                    else
-                    {
-                        brightnessValue = 1 + brightnessValue;
-                         red = (int)(brightnessValue * color.R);
-                         green = (int)(brightnessValue * color.R);
-                         blue = (int)(brightnessValue * color.R);
-                    }
-
-                    color = Color.FromArgb(255,red,green,blue);
-                    bmp.SetPixel(x, y, color);
+                    //set alphas channel to 255
+                    result[current + 3] = 255;
                 }
             }
-
-            return bmp;
+            //puts bytes into result Bitmap
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(result, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
         }
+
         private Image ContrastEnhancement(Image image)
         {
-            int red, green, blue;
+
+            double calculatedTreshold = Math.Pow((100.0 + contrastThreshold) / 100.0, 2);
+
             Bitmap bmp = new Bitmap(image);
-            double calculatedTreshold = Math.Pow((100.0 + contrastThreshold)/100.0,2);
+            int width = bmp.Width;
+            int height = bmp.Height;
+            //makes copy of bitmap to memory for fast processing.
+            BitmapData srcData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            bmp.UnlockBits(srcData);
+            int current = 0;
+            int cChannels = 3;
+
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
                 {
-                    Color color = bmp.GetPixel(x, y);
-
-                    red = (int)(((((color.R / 255.0) - 0.5) * calculatedTreshold) + 0.5) * 255.0);
-                    green = (int)(((((color.G / 255.0) - 0.5) * calculatedTreshold) + 0.5) * 255.0);
-                    blue = (int)(((((color.B / 255.0) - 0.5) * calculatedTreshold) + 0.5) * 255.0);
-
-                    if (blue > 255)
-                        blue = 255; 
-                    else if (blue < 0)
-                        blue = 0; 
-
-
-                    if (green > 255)
-                        green = 255; 
-                    else if (green < 0)
-                        green = 0; 
+                    current = y * srcData.Stride + x * 4;
+                    for (int i = 0; i < cChannels; i++)
+                    {
+                        //processing of single color channel
+                        double channel = (double)buffer[current + i];
+                        int newValue = (int)(((((channel / 255.0) - 0.5) * calculatedTreshold) + 0.5) * 255.0);
+                        //handle bad values
+                        if (newValue > 255)
+                            newValue = 255;
+                        else if (newValue < 0)
+                            newValue = 0;
+                        result[current + i] = (byte)newValue;
 
 
-                    if (red > 255)
-                        red = 255; 
-                    else if (red < 0)
-                        red = 0; 
-
-                    color = Color.FromArgb(255, red, green, blue);
-                    bmp.SetPixel(x, y, color);
+                    }
+                    //set alphas channel to 255
+                    result[current + 3] = 255;
                 }
             }
-            return bmp;
+            //puts bytes into result Bitmap
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(result, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
         }
+        //formula for gamma correction
         //encoded = ((original / 255) ^ (1 / gamma)) * 255
         private Image GammaCorrection(Image image)
         {
-            int red, green, blue;
+
+            double calculatedTreshold = Math.Pow((100.0 + contrastThreshold) / 100.0, 2);
+
             Bitmap bmp = new Bitmap(image);
+            int width = bmp.Width;
+            int height = bmp.Height;
+            //makes copy of bitmap to memory for fast processing.
+            BitmapData srcData = bmp.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            bmp.UnlockBits(srcData);
+            int current = 0;
+            int cChannels = 3;
 
             for (int y = 0; y < bmp.Height; y++)
             {
                 for (int x = 0; x < bmp.Width; x++)
                 {
-                    Color color = bmp.GetPixel(x, y);
+                    current = y * srcData.Stride + x * 4;
+                    for (int i = 0; i < cChannels; i++)
+                    {
+                        //processing of single color channel
+                        double channel = (double)buffer[current + i];
+                        result[current + i] = (byte)(Math.Pow((channel / 255.0), 1 / gamma) * 255.0); ;
 
-                    red = (int)(Math.Pow((color.R / 255.0),1/gamma.r) * 255.0);
-                    green = (int)(Math.Pow((color.R / 255.0), 1 / gamma.g) * 255.0);
-                    blue = (int)(Math.Pow((color.R / 255.0), 1 / gamma.b) * 255.0);
 
-                    color = Color.FromArgb(255, red, green, blue);
-                    bmp.SetPixel(x, y, color);
+                    }
+                    //set alphas channel to 255
+                    result[current + 3] = 255;
                 }
             }
-            return bmp;
+            //puts bytes into result Bitmap
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(result, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
         }
-
-        /*Convolutional filters*/
-        private Image GaussianBlur(Image image)
-        {
-
-            double[,] kernel = new double[3, 3] { { 1/16f, 1/8f, 1/16f },
-                                                  { 1/8f, 1/4f, 1/8f   },
-                                                  { 1/16f, 1/8f, 1/16f } };
-
-            return convolution.applyKernel(image, kernel);
-        }
-
-        private Image BoxBlur(Image image)
-        {
-
-            double[,] kernel = new double[3, 3] { { 1/9f, 1/9f, 1/9f },
-                                                  { 1/9f, 1/9f, 1/9f },
-                                                  { 1/9f, 1/9f, 1/9f } };
-
-            return convolution.applyKernel(image, kernel);
-        }
-
-        private Image Sharpen(Image image)
-        {
-
-            double[,] kernel = new double[3, 3] { { 0, -1, 0  },
-                                                  { -1, 5, -1 },
-                                                  { 0, -1, 0  } };
-
-            return convolution.applyKernel(image, kernel);
-        }
-
-        private Image EdgeDetection(Image image)
-        {
-            // horizontal 
-            double[,] kernel = new double[3, 3] { { 0, -1, 0 },
-                                                  { 0, 1, 0  },
-                                                  { 0, 0, 0  } };
-
-            return convolution.applyKernel(image, kernel);
-        }
-        private Image Emboss(Image image)
-        {
-            // south emboss
-            double[,] kernel = new double[3, 3] { { -1, -1, -1 },
-                                                  { 0, 1, 0  },
-                                                  { 1, 1, 1  } };
-
-            return convolution.applyKernel(image, kernel);
-        }
-
-
-
     }
 }

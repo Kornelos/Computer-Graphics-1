@@ -9,7 +9,7 @@ namespace CG1
     //class with the convolution applying function definition
     class Convolution
     {
-        public Image applyKernel(Image img, double[,] kernel,int kernelSize=3)
+        public Image applyKernel(Image img, double[,] kernel,int kernelRowSize=3, int kernelColSize = 3)
         {
             Bitmap bitmap = new Bitmap(img);
             Bitmap output = new Bitmap(img);
@@ -22,8 +22,8 @@ namespace CG1
                     int sumG = 0;
                     int sumB = 0;
 
-                    for (int matrixY = -1; matrixY < kernelSize - 1; matrixY++)
-                        for (int matrixX = -1; matrixX < kernelSize - 1; matrixX++)
+                    for (int matrixY = -kernelRowSize/2; matrixY < kernelRowSize - 1; matrixY++)
+                        for (int matrixX = -kernelColSize/2; matrixX < kernelColSize - 1; matrixX++)
                         {
                             // these coordinates will be outside the bitmap near all edges
                             int sourceX = x + matrixX;

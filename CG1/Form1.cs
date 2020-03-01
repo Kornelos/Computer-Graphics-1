@@ -21,6 +21,7 @@ namespace CG1
         public Form1()
         {
             InitializeComponent();
+            filterCheckedListBox.Items.AddRange(filters.getFilterNames());
         }
 
         private void loadButton_Click(object sender, EventArgs e)
@@ -35,7 +36,7 @@ namespace CG1
             img = Image.FromFile(filename);
             originalImg = img;
             pictureBox1.Image = img;
-            pictureBox2.Image = originalImg;
+            
         }
 
         private void saveButton_Click(object sender, EventArgs e)
@@ -66,6 +67,22 @@ namespace CG1
         {
             img = originalImg;
             pictureBox1.Image = img;
+        }
+
+        private void addConvolutionFilter_Click(object sender, EventArgs e)
+        {
+            
+            using (var convForm = new AddConvDialog())
+            {
+                var result = convForm.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    filters.addEditFilter(new ConvFilter(convForm.name, convForm.kernel, convForm.columns, convForm.rows));
+                    filterCheckedListBox.Items.Add(convForm.name);
+                }
+            }
+
+                
         }
     }
 }
