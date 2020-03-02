@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 
 namespace CG1
 {
@@ -37,9 +34,16 @@ namespace CG1
         public Image applyFilter(Image image)
         {
             Bitmap bitmap = new Bitmap(image);
-            Bitmap output = new Bitmap(image);
-
-
+            int width = bitmap.Width;
+            int height = bitmap.Height;
+            //makes copy of bitmap to memory for fast processing.
+            BitmapData srcData = bitmap.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+            int bytes = srcData.Stride * srcData.Height;
+            byte[] buffer = new byte[bytes];
+            byte[] result = new byte[bytes];
+            Marshal.Copy(srcData.Scan0, buffer, 0, bytes);
+            bitmap.UnlockBits(srcData);
             for (int y = 0; y < bitmap.Height; y++)
             {
                 for (int x = 0; x < bitmap.Width; x++)
@@ -48,6 +52,7 @@ namespace CG1
                     int sumG = 0;
                     int sumB = 0;
 
+                    int current;
                     for (int matrixY = -KernelAnchorRow; matrixY < Rows - KernelAnchorRow; matrixY++)
                         for (int matrixX = -KernelAnchorCol; matrixX < Columns - KernelAnchorCol; matrixX++)
                         {
@@ -66,11 +71,11 @@ namespace CG1
 
                             if (sourceY >= bitmap.Height)
                                 sourceY = bitmap.Height - 1;
-
-                            Color color = bitmap.GetPixel(sourceX, sourceY);
-                            sumR += (int)(color.R * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
-                            sumG += (int)(color.G * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
-                            sumB += (int)(color.B * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
+                            //current pixel for kernel
+                            current = sourceY * srcData.Stride + sourceX * 4;
+                            sumR += (int)(buffer[current] * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
+                            sumG += (int)(buffer[current + 1] * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
+                            sumB += (int)(buffer[current + 2] * Kernel[matrixX + KernelAnchorCol, matrixY + KernelAnchorRow]) + Offset;
                         }
                     // filter bad pixels 
                     if (sumR > 255)
@@ -85,11 +90,20 @@ namespace CG1
                         sumB = 255;
                     else if (sumB < 0)
                         sumB = 0;
-
-                    output.SetPixel(x, y, Color.FromArgb(sumR, sumG, sumB));
+                    // current in resulting bitmap
+                    current = y * srcData.Stride + x * 4;
+                    result[current] = (byte)sumR;
+                    result[current + 1] = (byte)sumG;
+                    result[current + 2] = (byte)sumB;
+                    result[current + 3] = 255;
                 }
             }
-            return output;
+            Bitmap resImg = new Bitmap(width, height);
+            BitmapData resData = resImg.LockBits(new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            Marshal.Copy(result, 0, resData.Scan0, bytes);
+            resImg.UnlockBits(resData);
+            return resImg;
         }
     }
 }
