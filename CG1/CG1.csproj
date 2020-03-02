@@ -61,28 +61,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConvFilter.cs" />
-    <Compile Include="Convolution.cs" />
-    <Compile Include="Filters.cs" />
-    <Compile Include="Form1.cs">
+    <Compile Include="Filters\ConvFilter.cs" />
+    <Compile Include="Filters\Functional\BrightnessCorrection.cs" />
+    <Compile Include="Filters\Functional\ContrastEnhancement.cs" />
+    <Compile Include="Filters\Functional\GammaCorrection.cs" />
+    <Compile Include="Filters\Functional\InversionFilter.cs" />
+    <Compile Include="Filters\Filter.cs" />
+    <Compile Include="Filters\FilterService.cs" />
+    <Compile Include="Views\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Form1.Designer.cs">
+    <Compile Include="Views\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="AddConvDialog.cs">
+    <Compile Include="Views\AddConvDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AddConvDialog.Designer.cs">
+    <Compile Include="Views\AddConvDialog.Designer.cs">
       <DependentUpon>AddConvDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="LabFilter.cs" />
+    <Compile Include="Filters\LabFilter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AddConvDialog.resx">
+    <EmbeddedResource Include="Views\AddConvDialog.resx">
       <DependentUpon>AddConvDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Form1.resx">
+    <EmbeddedResource Include="Views\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -119,5 +123,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

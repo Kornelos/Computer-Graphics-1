@@ -16,7 +16,7 @@ namespace CG1
 
         Image img;
         Image originalImg;
-        Filters filters = new Filters();
+        FilterService filters = new FilterService();
         
         public Form1()
         {

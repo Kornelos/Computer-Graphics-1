@@ -7,9 +7,14 @@ using System.Drawing;
 
 namespace CG1
 {
-    class LabFilter
+    // 5pts lab task
+    class LabFilter : Filter
     {
-        public Image applyFilter(Image img, int matrixSize=3)
+        int matrixSize = 3;
+
+        public string Name { get { return "Lab filter"; } }
+
+        public Image applyFilter(Image img)
         {
             Bitmap bitmap = new Bitmap(img);
             Bitmap output = new Bitmap(img);
