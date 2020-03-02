@@ -76,6 +76,7 @@
     <Compile Include="AddConvDialog.Designer.cs">
       <DependentUpon>AddConvDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="LabFilter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AddConvDialog.resx">

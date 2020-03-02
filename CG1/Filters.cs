@@ -17,15 +17,16 @@ namespace CG1
         private double gamma = 0.8;
 
         private Convolution convolution = new Convolution();
+        private LabFilter LabFilter = new LabFilter();
 
         // create basic filters
         private List<ConvFilter> convFilters = new List<ConvFilter>
         {
-            new ConvFilter("Box blur",new double[3,3]{ { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f } },3,3),
-            new ConvFilter("Gaussian blur",new double[3,3]{ { 1/16f, 1/8f, 1/16f },{ 1/8f, 1/4f, 1/8f   }, { 1/16f, 1/8f, 1/16f } },3,3),
-            new ConvFilter("Sharpen",new double[3,3]{ { 0, -1, 0  },{ -1, 5, -1 },{ 0, -1, 0  } },3,3),
-            new ConvFilter("Edge detection",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },3,3),
-            new ConvFilter("Emboss",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },3,3),
+            new ConvFilter("Box blur",new double[3,3]{ { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f }, { 1/9f, 1/9f, 1/9f } },0,3,3,0,0),
+            new ConvFilter("Gaussian blur",new double[3,3]{ { 1/16f, 1/8f, 1/16f },{ 1/8f, 1/4f, 1/8f   }, { 1/16f, 1/8f, 1/16f } },0,3,3,0,0),
+            new ConvFilter("Sharpen",new double[3,3]{ { 0, -1, 0  },{ -1, 5, -1 },{ 0, -1, 0  } },0,3,3,0,0),
+            new ConvFilter("Edge detection",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },0,3,3,0,0),
+            new ConvFilter("Emboss",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },0,3,3,0,0),
             
         };
 
@@ -45,7 +46,7 @@ namespace CG1
         {
             List<string> filters = new List<string>
             {
-                "Inversion","Brightness correction","Gamma correction","Contrast enhancement"
+                "Inversion","Brightness correction","Gamma correction","Contrast enhancement","Lab filter"
             };
             foreach(var filter in convFilters)
             {
@@ -67,13 +68,15 @@ namespace CG1
                 return GammaCorrection(img);
             if (filter == "Contrast enhancement")
                 return ContrastEnhancement(img);
+            if (filter == "Lab filter")
+                return LabFilter.applyFilter(img);
             else
             {
                 //convolutional filters
                 ConvFilter convFilter = convFilters.FindLast(item => item.ToString() == filter);
-                if(convFilter != null)
+                if (convFilter != null)
                 {
-                    return convolution.applyKernel(img, convFilter.Kernel);
+                    return convolution.applyKernel(img, convFilter);
                 }
                 MessageBox.Show("Filter not implemented");
                 return null;

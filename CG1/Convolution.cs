@@ -9,10 +9,11 @@ namespace CG1
     //class with the convolution applying function definition
     class Convolution
     {
-        public Image applyKernel(Image img, double[,] kernel,int kernelRowSize=3, int kernelColSize = 3)
+        public Image applyKernel(Image img, ConvFilter cf)
         {
             Bitmap bitmap = new Bitmap(img);
             Bitmap output = new Bitmap(img);
+            
 
             for (int y = 0; y < bitmap.Height; y++)
             {
@@ -22,8 +23,10 @@ namespace CG1
                     int sumG = 0;
                     int sumB = 0;
 
-                    for (int matrixY = -kernelRowSize/2; matrixY < kernelRowSize - 1; matrixY++)
-                        for (int matrixX = -kernelColSize/2; matrixX < kernelColSize - 1; matrixX++)
+                    // w zadaniu ze zmienianiem punktu zaczepienia kernela zmieniamy dwa loopy ponizej
+                    // -ax to kernelsize - ax where ax is punkt zaczepienia 
+                    for (int matrixY = -cf.Rows / 2; matrixY < cf.Rows / 2; matrixY++)
+                        for (int matrixX = -cf.Columns / 2; matrixX < cf.Columns/2; matrixX++)
                         {
                             // these coordinates will be outside the bitmap near all edges
                             int sourceX = x + matrixX;
@@ -42,9 +45,9 @@ namespace CG1
                                 sourceY = bitmap.Height - 1;
 
                             Color color = bitmap.GetPixel(sourceX, sourceY);
-                            sumR += (int)(color.R * kernel[matrixX + 1,matrixY + 1]);
-                            sumG += (int)(color.G * kernel[matrixX + 1, matrixY + 1]);
-                            sumB += (int)(color.B * kernel[matrixX + 1, matrixY + 1]);
+                            sumR += (int)(color.R * cf.Kernel[matrixX + 1, matrixY + 1]) + cf.Offset;
+                            sumG += (int)(color.G * cf.Kernel[matrixX + 1, matrixY + 1]) + cf.Offset;
+                            sumB += (int)(color.B * cf.Kernel[matrixX + 1, matrixY + 1]) + cf.Offset;
                         }
                     // filter bad pixels 
                     if (sumR > 255)
@@ -60,7 +63,7 @@ namespace CG1
                     else if (sumB < 0)
                         sumB = 0;
 
-                    output.SetPixel(x, y, Color.FromArgb(sumR,sumG,sumB));
+                    output.SetPixel(x, y, Color.FromArgb(sumR, sumG, sumB));
                 }
             }
             return output;

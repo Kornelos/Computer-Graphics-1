@@ -17,6 +17,13 @@ namespace CG1
         int kernelSum = 0;
         public double[,] kernel { get; set; }
         public string name;
+        public int offset;
+        public int kernelAnchorCol;
+        public int kernelAnchorRow;
+
+
+
+
         public AddConvDialog()
         {
             InitializeComponent();
@@ -27,7 +34,7 @@ namespace CG1
             
             if (int.TryParse(rowsTextBox.Text, out rows) && int.TryParse(columnsTextBox.Text, out columns))
             {
-                if (rows <= 9 || rows >= 1 || (rows % 2 != 0) || columns <= 9 || columns >= 1 || (columns % 2 != 0))
+                if (rows <= 9 && rows >= 1 && (rows % 2 != 0) && columns <= 9 && columns >= 1 && (columns % 2 != 0))
                 {
                     tableLayoutPanel1.Controls.Clear();
                     for (int i = 0; i < columns; i++)
@@ -35,6 +42,10 @@ namespace CG1
                         {
                             tableLayoutPanel1.Controls.Add(new TextBox(), i, j);
                         }
+                }
+                else
+                {
+                    MessageBox.Show("Provide proper values!");
                 }
             }
             else
@@ -47,8 +58,8 @@ namespace CG1
         private void saveKernelButton_Click(object sender, EventArgs e)
         {
             kernel = new double[columns, rows];
-
-            for(int i = 0; i<columns; i++)
+  
+            for (int i = 0; i<columns; i++)
                 for (int j = 0; j < rows; j++)
                 {
                     TextBox value = (TextBox)tableLayoutPanel1.GetControlFromPosition(i, j);
@@ -58,13 +69,26 @@ namespace CG1
                     }
                     else
                     {
-                        MessageBox.Show("Provide proper values!");
+                        MessageBox.Show($"Provide proper value at col: {i} row: {j}");
                     }
                 }
 
             kernel = processKernel(kernel);
             name = nameTextBox.Text;
-            if(kernel != null)
+
+            try
+            {
+                offset = int.Parse(offsetTextBox.Text);
+                kernelAnchorCol = int.Parse(anchorColTextBox.Text);
+                kernelAnchorRow = int.Parse(anchorRowTextBox.Text);
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return;
+            }
+
+            if (kernel != null)
             {
                 DialogResult = DialogResult.OK;
                 Close();
@@ -75,7 +99,7 @@ namespace CG1
         private double[,] processKernel(double[,] kernel)
         {
             int divisor;
-            if (autoDivisorRadioButton.Checked)
+            if (automaticDivisorCheckBox.Checked)
             {
                 if (kernelSum != 0)
                     divisor = kernelSum;

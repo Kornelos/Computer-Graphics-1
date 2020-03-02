@@ -77,7 +77,8 @@ namespace CG1
                 var result = convForm.ShowDialog();
                 if (result == DialogResult.OK)
                 {
-                    filters.addEditFilter(new ConvFilter(convForm.name, convForm.kernel, convForm.columns, convForm.rows));
+                    filters.addEditFilter(new ConvFilter(convForm.name, convForm.kernel,convForm.offset, convForm.columns, convForm.rows,
+                                                         convForm.kernelAnchorRow, convForm.kernelAnchorCol));
                     filterCheckedListBox.Items.Add(convForm.name);
                 }
             }
