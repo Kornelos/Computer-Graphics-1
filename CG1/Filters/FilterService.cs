@@ -25,7 +25,7 @@ namespace CG1
             new ConvFilter("Gaussian blur",new double[3,3]{ { 1/16f, 1/8f, 1/16f },{ 1/8f, 1/4f, 1/8f   }, { 1/16f, 1/8f, 1/16f } },0,3,3,1,1),
             new ConvFilter("Sharpen",new double[3,3]{ { 0, -1, 0  },{ -1, 5, -1 },{ 0, -1, 0  } },0,3,3,1,1),
             new ConvFilter("Edge detection",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },0,3,3,1,1),
-            new ConvFilter("Emboss",new double[3,3]{ { 0, -1, 0 },{ 0, 1, 0  }, { 0, 0, 0  } },0,3,3,1,1),
+            new ConvFilter("Emboss",new double[3, 3] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } },0,3,3,1,1),
             
             //filter from lab task
             new LabFilter(),
