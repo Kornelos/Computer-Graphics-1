@@ -67,6 +67,13 @@ namespace CG1
             }
         }
 
+        public ConvFilter GetConvFilter(string filterName)
+        {
+                ConvFilter filter = (ConvFilter)filters.FindLast(item => item.Name == filterName && item.GetType() == typeof(ConvFilter));
+                return filter;
+
+        }
+
     
     }
 }

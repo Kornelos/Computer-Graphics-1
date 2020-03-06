@@ -27,15 +27,19 @@ namespace CG1
         private void loadButton_Click(object sender, EventArgs e)
         {
             string filename;
-
-            openFileDialog1.ShowDialog();
-            openFileDialog1.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png *.bmp";
+            openFileDialog1.FileName = "";
+            openFileDialog1.Filter = "Image files (*.jpg, *.jpeg, *.jpe, *.jfif, *.png, *.bmp) | *.jpg; *.jpeg; *.jpe; *.jfif; *.png; *.bmp;";
+            var result = openFileDialog1.ShowDialog();
+            
 
             filename = openFileDialog1.FileName;
-
-            img = Image.FromFile(filename);
-            originalImg = img;
-            pictureBox1.Image = img;
+            if(result == DialogResult.OK)
+            {
+                img = Image.FromFile(filename);
+                originalImg = img;
+                pictureBox1.Image = img;
+            }
+            
             
         }
 
@@ -44,6 +48,7 @@ namespace CG1
             if (img != null)
             {
                 img.Save(@"result.jpeg", ImageFormat.Jpeg);
+                MessageBox.Show("Image saved to program location.");
             }
         }
 
@@ -71,15 +76,28 @@ namespace CG1
 
         private void addConvolutionFilter_Click(object sender, EventArgs e)
         {
-            
-            using (var convForm = new AddConvDialog())
+            //Check if filter is selected for edit
+            ConvFilter cf = null;
+            List<string> selectedFields = new List<string>();
+            selectedFields.AddRange(filterCheckedListBox.CheckedItems.OfType<string>());
+            if (selectedFields.Count > 0)
+            {
+                cf = filters.GetConvFilter(selectedFields.First());
+            }
+                
+
+
+            using (var convForm = new AddConvDialog(cf))
             {
                 var result = convForm.ShowDialog();
                 if (result == DialogResult.OK)
                 {
                     filters.addEditFilter(new ConvFilter(convForm.name, convForm.kernel,convForm.offset, convForm.columns, convForm.rows,
                                                          convForm.kernelAnchorRow, convForm.kernelAnchorCol));
+                    
                     filterCheckedListBox.Items.Add(convForm.name);
+                    filterCheckedListBox.Items.Clear();
+                    filterCheckedListBox.Items.AddRange(filters.getFilterNames());
                 }
             }
 

@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace CG1
@@ -14,20 +7,31 @@ namespace CG1
     {
         public int rows = 0;
         public int columns = 0;
-        int kernelSum = 0;
+        double kernelSum = 0;
         public double[,] kernel { get; set; }
         public string name;
         public int offset;
         public int kernelAnchorCol;
         public int kernelAnchorRow;
+        public ConvFilter editFilter;
 
 
 
 
-        public AddConvDialog()
+        public AddConvDialog(ConvFilter editFilter)
         {
             InitializeComponent();
+            this.editFilter = editFilter;
+            
+            
+            if(editFilter != null)
+            {
+                fromExisting(editFilter);
+            }
+
+           
         }
+
 
         private void generateKernel_Click(object sender, EventArgs e)
         {
@@ -63,13 +67,14 @@ namespace CG1
                 for (int j = 0; j < rows; j++)
                 {
                     TextBox value = (TextBox)tableLayoutPanel1.GetControlFromPosition(i, j);
-                    if(int.TryParse(value.Text,out int num)){
+                    if(double.TryParse(value.Text,out double num)){
                         kernel[i, j] = num;
                         kernelSum += num;
                     }
                     else
                     {
                         MessageBox.Show($"Provide proper value at col: {i} row: {j}");
+                        return;
                     }
                 }
 
@@ -81,6 +86,8 @@ namespace CG1
                 offset = int.Parse(offsetTextBox.Text);
                 kernelAnchorCol = int.Parse(anchorColTextBox.Text);
                 kernelAnchorRow = int.Parse(anchorRowTextBox.Text);
+                if (kernelAnchorCol > columns || kernelAnchorRow > rows)
+                    throw new Exception("Kernel Anchor must be smaller than kernel size.");
             }
             catch(Exception ex)
             {
@@ -98,7 +105,7 @@ namespace CG1
 
         private double[,] processKernel(double[,] kernel)
         {
-            int divisor;
+            double divisor;
             if (automaticDivisorCheckBox.Checked)
             {
                 if (kernelSum != 0)
@@ -109,7 +116,7 @@ namespace CG1
             }
             else
             {
-                if(!int.TryParse(divisorTextBox.Text, out divisor))
+                if(!double.TryParse(divisorTextBox.Text,out divisor))
                 {
                     MessageBox.Show("Provide proper divisor!");
                     return null;
@@ -130,6 +137,27 @@ namespace CG1
                 }
 
             return kernel;
+        }
+
+        private void fromExisting(ConvFilter editFilter)
+        {
+            tableLayoutPanel1.Controls.Clear();
+            for (int i = 0; i < editFilter.Columns; i++)
+                for (int j = 0; j < editFilter.Rows; j++)
+                {
+                    TextBox textBox = new TextBox();
+                    textBox.Text = editFilter.Kernel[i, j].ToString();
+                    tableLayoutPanel1.Controls.Add(textBox, i, j);
+
+                }
+            offsetTextBox.Text = editFilter.Offset.ToString();
+            rowsTextBox.Text = editFilter.Rows.ToString();
+            columnsTextBox.Text = editFilter.Columns.ToString();
+            anchorColTextBox.Text = editFilter.KernelAnchorCol.ToString();
+            anchorRowTextBox.Text = editFilter.KernelAnchorRow.ToString();
+            nameTextBox.Text = editFilter.Name;
+            columns = editFilter.Columns;
+            rows = editFilter.Rows;
         }
     }
 }
