@@ -29,6 +29,10 @@ namespace CG1
             
             //filter from lab task
             new LabFilter(),
+
+            //lab2 filters
+            new AverageDithering(),
+            new KMeansQuantization(),
         };
 
         public FilterService() { }
@@ -74,6 +78,11 @@ namespace CG1
 
         }
 
+        public Filter GetFilterNamed(string filterName)
+        {
+            return filters.FindLast(item => item.Name == filterName);
+            
+        }
     
     }
 }

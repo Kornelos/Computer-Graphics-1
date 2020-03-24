@@ -3,7 +3,7 @@
 
 namespace CG1
 {
-    interface Filter
+    public interface Filter
     {
         string Name { get; }
         Image applyFilter(Image image);

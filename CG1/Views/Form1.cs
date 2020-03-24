@@ -103,5 +103,17 @@ namespace CG1
 
                 
         }
+
+        private void numericUpDownKMeans_ValueChanged(object sender, EventArgs e)
+        {
+            KMeansQuantization filter = (KMeansQuantization)filters.GetFilterNamed("K-Means quantization");
+            filter.K = (int)numericUpDownKMeans.Value;
+        }
+
+        private void checkBoxAvgGreyscale_CheckedChanged(object sender, EventArgs e)
+        {
+            AverageDithering filter = (AverageDithering)filters.GetFilterNamed("Average dithering");
+            filter.ToGreyscale = checkBoxAvgGreyscale.Checked;
+        }
     }
 }

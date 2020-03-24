@@ -38,19 +38,22 @@
             this.saveButton = new System.Windows.Forms.Button();
             this.loadButton = new System.Windows.Forms.Button();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.numericUpDownKMeans = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.checkBoxAvgGreyscale = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownKMeans)).BeginInit();
             this.SuspendLayout();
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -60,9 +63,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(963, 570);
-            this.splitContainer1.SplitterDistance = 838;
-            this.splitContainer1.SplitterWidth = 3;
+            this.splitContainer1.Size = new System.Drawing.Size(1693, 974);
+            this.splitContainer1.SplitterDistance = 1455;
             this.splitContainer1.TabIndex = 0;
             // 
             // pictureBox1
@@ -70,10 +72,9 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pictureBox1.Location = new System.Drawing.Point(2, 2);
-            this.pictureBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
             this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(834, 566);
+            this.pictureBox1.Size = new System.Drawing.Size(1449, 968);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
@@ -83,17 +84,18 @@
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.checkBoxAvgGreyscale);
+            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.numericUpDownKMeans);
             this.groupBox1.Controls.Add(this.addConvolutionFilter);
             this.groupBox1.Controls.Add(this.revertButton);
             this.groupBox1.Controls.Add(this.filterCheckedListBox);
             this.groupBox1.Controls.Add(this.applyButton);
             this.groupBox1.Controls.Add(this.saveButton);
             this.groupBox1.Controls.Add(this.loadButton);
-            this.groupBox1.Location = new System.Drawing.Point(2, 8);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.groupBox1.Location = new System.Drawing.Point(3, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.groupBox1.Size = new System.Drawing.Size(121, 555);
+            this.groupBox1.Size = new System.Drawing.Size(231, 951);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "settings";
@@ -102,10 +104,9 @@
             // 
             this.addConvolutionFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.addConvolutionFilter.Location = new System.Drawing.Point(4, 221);
-            this.addConvolutionFilter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.addConvolutionFilter.Location = new System.Drawing.Point(6, 340);
             this.addConvolutionFilter.Name = "addConvolutionFilter";
-            this.addConvolutionFilter.Size = new System.Drawing.Size(112, 62);
+            this.addConvolutionFilter.Size = new System.Drawing.Size(218, 95);
             this.addConvolutionFilter.TabIndex = 5;
             this.addConvolutionFilter.Text = "Add/Edit Convolution filter";
             this.addConvolutionFilter.UseVisualStyleBackColor = true;
@@ -115,10 +116,9 @@
             // 
             this.revertButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.revertButton.Location = new System.Drawing.Point(4, 286);
-            this.revertButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.revertButton.Location = new System.Drawing.Point(6, 440);
             this.revertButton.Name = "revertButton";
-            this.revertButton.Size = new System.Drawing.Size(112, 62);
+            this.revertButton.Size = new System.Drawing.Size(218, 95);
             this.revertButton.TabIndex = 4;
             this.revertButton.Text = "Revert filters";
             this.revertButton.UseVisualStyleBackColor = true;
@@ -129,20 +129,18 @@
             this.filterCheckedListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.filterCheckedListBox.FormattingEnabled = true;
-            this.filterCheckedListBox.Location = new System.Drawing.Point(2, 352);
-            this.filterCheckedListBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.filterCheckedListBox.Location = new System.Drawing.Point(6, 624);
             this.filterCheckedListBox.Name = "filterCheckedListBox";
-            this.filterCheckedListBox.Size = new System.Drawing.Size(114, 184);
+            this.filterCheckedListBox.Size = new System.Drawing.Size(218, 326);
             this.filterCheckedListBox.TabIndex = 3;
             // 
             // applyButton
             // 
             this.applyButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.applyButton.Location = new System.Drawing.Point(4, 155);
-            this.applyButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.applyButton.Location = new System.Drawing.Point(6, 238);
             this.applyButton.Name = "applyButton";
-            this.applyButton.Size = new System.Drawing.Size(112, 62);
+            this.applyButton.Size = new System.Drawing.Size(218, 95);
             this.applyButton.TabIndex = 2;
             this.applyButton.Text = "Apply filters";
             this.applyButton.UseVisualStyleBackColor = true;
@@ -152,10 +150,9 @@
             // 
             this.saveButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.saveButton.Location = new System.Drawing.Point(4, 89);
-            this.saveButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.saveButton.Location = new System.Drawing.Point(6, 137);
             this.saveButton.Name = "saveButton";
-            this.saveButton.Size = new System.Drawing.Size(112, 62);
+            this.saveButton.Size = new System.Drawing.Size(218, 95);
             this.saveButton.TabIndex = 1;
             this.saveButton.Text = "Save image";
             this.saveButton.UseVisualStyleBackColor = true;
@@ -165,10 +162,9 @@
             // 
             this.loadButton.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadButton.Location = new System.Drawing.Point(4, 23);
-            this.loadButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.loadButton.Location = new System.Drawing.Point(6, 35);
             this.loadButton.Name = "loadButton";
-            this.loadButton.Size = new System.Drawing.Size(112, 62);
+            this.loadButton.Size = new System.Drawing.Size(218, 95);
             this.loadButton.TabIndex = 0;
             this.loadButton.Text = "Load image";
             this.loadButton.UseVisualStyleBackColor = true;
@@ -178,14 +174,56 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
+            // numericUpDownKMeans
+            // 
+            this.numericUpDownKMeans.Location = new System.Drawing.Point(6, 547);
+            this.numericUpDownKMeans.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.numericUpDownKMeans.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownKMeans.Name = "numericUpDownKMeans";
+            this.numericUpDownKMeans.Size = new System.Drawing.Size(120, 26);
+            this.numericUpDownKMeans.TabIndex = 6;
+            this.numericUpDownKMeans.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numericUpDownKMeans.ValueChanged += new System.EventHandler(this.numericUpDownKMeans_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(134, 547);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(97, 20);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "K in KMeans";
+            // 
+            // checkBoxAvgGreyscale
+            // 
+            this.checkBoxAvgGreyscale.AutoSize = true;
+            this.checkBoxAvgGreyscale.Location = new System.Drawing.Point(6, 579);
+            this.checkBoxAvgGreyscale.Name = "checkBoxAvgGreyscale";
+            this.checkBoxAvgGreyscale.Size = new System.Drawing.Size(150, 24);
+            this.checkBoxAvgGreyscale.TabIndex = 8;
+            this.checkBoxAvgGreyscale.Text = "Greyscale dither";
+            this.checkBoxAvgGreyscale.UseVisualStyleBackColor = true;
+            this.checkBoxAvgGreyscale.CheckedChanged += new System.EventHandler(this.checkBoxAvgGreyscale_CheckedChanged);
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(963, 570);
+            this.ClientSize = new System.Drawing.Size(1693, 974);
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.MinimumSize = new System.Drawing.Size(888, 558);
+            this.MinimumSize = new System.Drawing.Size(1321, 828);
             this.Name = "Form1";
             this.Text = "Filters";
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -194,6 +232,8 @@
             this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDownKMeans)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -210,6 +250,9 @@
         private System.Windows.Forms.Button revertButton;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button addConvolutionFilter;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.NumericUpDown numericUpDownKMeans;
+        private System.Windows.Forms.CheckBox checkBoxAvgGreyscale;
     }
 }
 
